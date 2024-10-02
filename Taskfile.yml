@@ -1,0 +1,33 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  flash:serial:
+    cmds:
+      - docker compose run --rm esphome run battery.yaml --device /dev/ttyUSB0
+  
+  flash:
+    cmds:
+      - docker compose run --rm esphome run battery.yaml --device battery.local
+  
+  compile:
+    cmds:
+      - docker compose run --rm esphome compile battery.yaml
+
+  run:
+    cmds:
+      - task: compile
+      - task: flash:serial
+  
+  logs:
+    cmds:
+      - docker compose run --rm esphome logs battery.yaml --device battery.local

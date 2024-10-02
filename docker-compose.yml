@@ -1,0 +1,20 @@
+version: '3'
+services:
+  esphome:
+    container_name: esphome
+    image: ghcr.io/esphome/esphome
+    volumes:
+      - ./config:/config
+      - /etc/localtime:/etc/localtime:ro
+    devices:
+      - /dev/ttyUSB0
+    privileged: true
+    network_mode: host
+    ports:
+      ## mdns avahi
+      #- 5353:5353:udp
+      - 6052:6052
+    environment:
+      #- ESPHOME_DASHBOARD_USE_PING=true
+      - USERNAME=test
+      - PASSWORD=test
