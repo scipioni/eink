@@ -1,0 +1,177 @@
+esphome:
+  name: eink
+
+esp32:
+  board: esp32-c6-devkitc-1
+  flash_size: 4MB
+  variant: esp32c6
+  framework:
+    type: esp-idf
+    #version: "5.4.0"
+    #  version: "5.2.1"
+    #platform_version: 6.6.0
+    version: "5.3.0"
+    platform_version: 6.9.0
+  #  platform_version: 6.8.1
+    #sdkconfig_options:
+    #  CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y 
+
+logger:
+  level: DEBUG
+
+# sensor:
+#   - platform: wifi_signal
+#     name: "WiFi Signal Sensor"
+#     update_interval: 15s
+#     id: sstrength
+#   - platform: uptime
+#     name: Uptime Sensor
+#     id: uptime_sensor
+#     update_interval: 60s
+
+switch:
+  - platform: gpio
+    pin: 15
+    id: led
+    #inverted: True
+
+interval:
+  - interval: 2000ms
+    then:
+      - switch.turn_on: led
+      - delay: 200ms
+      - switch.turn_off: led
+
+# spi:
+#   clk_pin: GPIO23
+#   mosi_pin: GPIO22
+#   miso_pin: GPIO21
+#
+# display:
+#   - platform: waveshare_epaper
+#     # https://esphome.io/components/display/waveshare_epaper.html
+#     id: epaper_display
+#     reset_duration: 2ms
+#     setup_priority: 1000
+#     cs_pin: 2
+#     dc_pin: 3
+#     busy_pin: 
+#       number: 4
+#       inverted: True
+#     reset_pin: 5
+#     model: 7.50inv2
+#     update_interval: never 
+#     #full_update_every: 30
+#     lambda: |-
+#       it.print(0, 0, id(font1), "Hello World!");
+#
+# display:
+#   - platform: ssd1306_i2c
+#     id: oled
+#     #model: "SSD1306 128x32"
+#     model: "SH1106 128x64"
+#     update_interval: 1s
+#     rotation: 180
+#     pages:
+#       - id: page_debug
+#         lambda: |-
+#           it.printf(0, 0, id(font_small), "ADC=%2.2f", id(adc_sensor).state);
+#           it.printf(0, 15, id(font_small), "JET=%d PD=%d", id(jetson_keep_on).state, id(pd_is_active).state);
+#           it.printf(0, 30, id(font_small), "uptime=%d", id(uptime_seconds));
+#
+#       - id: page_splash
+#         lambda: |-
+#           it.print(64,32,id(font_big), TextAlign::CENTER, "RICARICA");
+#       - id: page_jetson_splash
+#         lambda: |-
+#           it.print(64,32,id(font_big), TextAlign::CENTER, "CERBERO");
+#       - id: page_shutdown
+#         lambda: |-
+#           it.print(64,32,id(font_big), TextAlign::CENTER, "OFF");
+#
+#       - id: page_charge
+#         lambda: |-
+#           // batteria
+#           int x0 = 124; 
+#           int y0 = 32;
+#           it.rectangle(0, 0, x0, y0);
+#           it.filled_rectangle(3, 3, id(battery_level)*x0/100-2, y0-6);
+#           it.filled_rectangle(x0, 10, x0+1, 12);
+#           //it.printf(x0+3, 0, id(font_level), "%d%%", min(99,id(battery_level)));
+#
+#           // autonomia
+#           //it.printf(64, y0+2, id(font_autonomy), TextAlign::CENTER_HORIZONTAL, "%d minuti %d", id(autonomy), id(pd_is_active).state);
+#           it.printf(0, y0+2, id(font_autonomy), "ADC %f", id(adc_sensor).state);
+
+      # - id: page2
+      #   lambda: |-
+      #     int minutes = id(uptime_sensor).state/60;
+      #     it.printf(64, 0, id(font_uptime), TextAlign::CENTER_HORIZONTAL, "acceso da");
+      #     it.printf(64, 25, id(font_uptime), TextAlign::CENTER_HORIZONTAL, "%d minuti", minutes);
+      #     //it.rectangle(0, 0, 128, 32);
+      #     //it.rectangle(0, 0, 128, 16);
+      #     //it.printf(1, 0, id(myfont), "Vcc=%2.3fV", id(vcc).state);
+      #     //it.printf(0, 0, id(myfont), "spegnimento...");
+
+
+# Enable Home Assistant API
+api:
+  password: ""
+  reboot_timeout: 0s
+
+#ota:
+#  password: ""
+
+wifi:
+  ssid: !secret WifiSsid
+  password: !secret WifiPassword
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  #ap:
+  #  ssid: "eink fallback"
+  #  password: !secret WifiPasswordHotspot
+#captive_portal:
+
+font:
+  - file: 'fonts/Roboto-Regular.ttf'
+    id: font1
+    size: 8
+
+# font:
+#   # - file: "fonts/Comic Sans MS.ttf"
+#   #   id: my_font
+#   #   size: 20
+#
+#   # gfonts://family[@weight]
+#   - file: "gfonts://Roboto"
+#     id: myfont
+#     size: 18
+#   - file: "gfonts://Roboto"
+#     id: font_level
+#     size: 24
+#   - file: "gfonts://Roboto"
+#     id: font_autonomy
+#     size: 18
+#   - file: "gfonts://Roboto"
+#     id: font_uptime
+#     size: 20
+#   - file: "gfonts://Roboto"
+#     id: font_small
+#     size: 14
+#   - file: "gfonts://Roboto"
+#     id: font_big
+#     size: 18
+
+# globals:
+#   - id: battery_level
+#     type: int
+#     restore_value: no
+#     initial_value: "100"
+#   - id: uptime_seconds
+#     type: int
+#     restore_value: no
+#     initial_value: "0"
+#   - id: autonomy
+#     type: int
+#     restore_value: no
+#     initial_value: "180"

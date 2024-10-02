@@ -10,18 +10,21 @@ tasks:
     cmds:
       - echo "{{.GREETING}}"
     silent: true
+  setup:
+    cmds:
+      - docker pull ghcr.io/esphome/esphome
 
   flash:serial:
     cmds:
-      - docker compose run --rm esphome run battery.yaml --device /dev/ttyUSB0
+      - docker compose run --rm esphome run eink.yaml --device /dev/ttyACM0
   
   flash:
     cmds:
-      - docker compose run --rm esphome run battery.yaml --device battery.local
+      - docker compose run --rm esphome run eink.yaml --device eink.local
   
   compile:
     cmds:
-      - docker compose run --rm esphome compile battery.yaml
+      - docker compose run --rm esphome compile eink.yaml
 
   run:
     cmds:
@@ -30,4 +33,8 @@ tasks:
   
   logs:
     cmds:
-      - docker compose run --rm esphome logs battery.yaml --device battery.local
+      - docker compose run --rm esphome logs eink.yaml --device eink.local
+
+  logs:serial:
+    cmds:
+      - docker compose run --rm esphome logs eink.yaml --device /dev/ttyACM0
