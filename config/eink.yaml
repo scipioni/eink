@@ -1,5 +1,9 @@
 esphome:
   name: eink
+  on_boot:
+    priority: -100.0
+    then:
+      - logger.log: "eink started"
 
 esp32:
   board: esp32-c6-devkitc-1
@@ -7,18 +11,14 @@ esp32:
   variant: esp32c6
   framework:
     type: esp-idf
-    #version: "5.4.0"
-    #  version: "5.2.1"
-    #platform_version: 6.6.0
     version: "5.3.1"
     platform_version: 6.9.0
-  #  platform_version: 6.8.1
-    #sdkconfig_options:
-    #  CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y 
 
 logger:
   level: VERBOSE
   #level: DEBUG
+  baud_rate: 115200
+  #baud_rate: 460800
 
 # sensor:
 #   - platform: wifi_signal
@@ -116,9 +116,9 @@ interval:
 
 
 # Enable Home Assistant API
-api:
-  password: ""
-  reboot_timeout: 0s
+#api:
+#  password: ""
+#  reboot_timeout: 0s
 
 #ota:
 #  password: ""
