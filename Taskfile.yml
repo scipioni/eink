@@ -16,7 +16,7 @@ tasks:
 
   flash:serial:
     cmds:
-      - docker compose run --rm esphome run eink.yaml --device /dev/ttyACM0
+      - docker compose run esphome run eink.yaml --device /dev/ttyACM0
   
   flash:
     cmds:
@@ -24,7 +24,7 @@ tasks:
   
   compile:
     cmds:
-      - docker compose run --rm esphome compile eink.yaml
+      - docker compose run esphome compile eink.yaml
 
   run:
     cmds:

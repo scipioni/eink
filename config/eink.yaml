@@ -10,14 +10,15 @@ esp32:
     #version: "5.4.0"
     #  version: "5.2.1"
     #platform_version: 6.6.0
-    version: "5.3.0"
+    version: "5.3.1"
     platform_version: 6.9.0
   #  platform_version: 6.8.1
     #sdkconfig_options:
     #  CONFIG_ESPTOOLPY_FLASHSIZE_8MB: y 
 
 logger:
-  level: DEBUG
+  level: VERBOSE
+  #level: DEBUG
 
 # sensor:
 #   - platform: wifi_signal
