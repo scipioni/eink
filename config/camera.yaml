@@ -1,0 +1,68 @@
+esphome:
+  name: camera
+  on_boot:
+    priority: -100.0
+    then:
+      - logger.log: "camera started"
+    # PlatformIO build options
+  platformio_options:
+    build_flags: -DBOARD_HAS_PSRAM
+    board_build.arduino.memory_type: qio_opi
+    board_build.f_flash: 80000000L
+    board_build.flash_mode: qio 
+
+esp32:
+  board: esp32-s3-devkitc-1
+  #variant: esp32s3
+  framework:
+    type: arduino
+    # type: esp-idf
+    # version: "5.3.1"
+    # platform_version: 6.9.0
+    #sdkconfig_options:
+    #  CONFIG_ESP_CONSOLE_USB_CDC: y
+
+logger:
+  level: VERBOSE
+  #hardware_uart: USB_SERIAL_JTAG
+
+
+switch:
+  - platform: gpio
+    pin: GPIO4
+    id: led
+
+interval:
+  - interval: 2000ms
+    then:
+      - switch.turn_on: led
+      - delay: 200ms
+      - switch.turn_off: led
+
+esp32_camera:
+  id: espcam
+  name: My Camera
+  external_clock:
+    pin: GPIO10
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO40
+    scl: GPIO39
+  data_pins: [GPIO15, GPIO17, GPIO18, GPIO16, GPIO14, GPIO12, GPIO11, GPIO48]
+  vsync_pin: GPIO38
+  href_pin: GPIO47
+  pixel_clock_pin: GPIO13
+  resolution: 800x600
+  
+
+esp32_camera_web_server:
+  - port: 8080
+    mode: stream
+  - port: 8081
+    mode: snapshot
+
+wifi:
+  ssid: !secret WifiSsid
+  password: !secret WifiPassword
+
+

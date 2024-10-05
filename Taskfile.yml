@@ -8,24 +8,23 @@ vars:
 env:
   CONFIG: eink
 
-dotenv: ['.env']
-
 tasks:
   default:
     cmds:
-      - echo "{{.GREETING}}"
+      - echo "config=$CONFIG" 
     silent: true
+
   setup:
     cmds:
       - docker pull ghcr.io/esphome/esphome
 
-  flash:serial:
+  flash:
     cmds:
       - docker compose run --rm esphome run $CONFIG.yaml --device /dev/ttyACM0
   
-  flash:
+  flash:ota:
     cmds:
-      - docker compose run --rm esphome run $CONFIG.yaml --device eink.local
+      - docker compose run --rm esphome run $CONFIG.yaml --device $CONFIG.local
   
   compile:
     cmds:
