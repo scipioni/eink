@@ -18,3 +18,19 @@ services:
       #- ESPHOME_DASHBOARD_USE_PING=true
       - USERNAME=test
       - PASSWORD=test
+ 
+  hass:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - ./hass:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    ports:
+      - 8123:8123
+    environment:
+      - PUID=1000
+      - PGID=1001
+    #privileged: true
+    #network_mode: host     

@@ -4,7 +4,6 @@ esphome:
     priority: -100.0
     then:
       - logger.log: "camera started"
-    # PlatformIO build options
   platformio_options:
     build_flags: -DBOARD_HAS_PSRAM
     board_build.arduino.memory_type: qio_opi
@@ -13,24 +12,18 @@ esphome:
 
 esp32:
   board: esp32-s3-devkitc-1
-  #variant: esp32s3
   framework:
     type: arduino
-    # type: esp-idf
-    # version: "5.3.1"
-    # platform_version: 6.9.0
-    #sdkconfig_options:
-    #  CONFIG_ESP_CONSOLE_USB_CDC: y
 
 logger:
   level: VERBOSE
-  #hardware_uart: USB_SERIAL_JTAG
 
 
 switch:
   - platform: gpio
-    pin: GPIO4
+    pin: GPIO21
     id: led
+    inverted: True
 
 interval:
   - interval: 2000ms
@@ -52,7 +45,9 @@ esp32_camera:
   vsync_pin: GPIO38
   href_pin: GPIO47
   pixel_clock_pin: GPIO13
-  resolution: 800x600
+  #resolution: 800x600
+  #resolution: 1280x1024
+  resolution: 1600x1200
   
 
 esp32_camera_web_server:
@@ -66,3 +61,4 @@ wifi:
   password: !secret WifiPassword
 
 
+ota:

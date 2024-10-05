@@ -2,7 +2,7 @@
 
 
 - https://esphome.io/
-- pinouts: https://randomnerdtutorials.com/esp8266-pinout-reference-gpios/
+- https://wiki.seeedstudio.com/XIAO_ESP32S3_esphome/
 - http://staff.ltam.lu/feljc/electronics/homeassistant/ESPHome_programming_2.pdf
 
 
