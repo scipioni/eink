@@ -5,6 +5,11 @@ version: '3'
 vars:
   GREETING: Hello, World!
 
+env:
+  CONFIG: eink
+
+dotenv: ['.env']
+
 tasks:
   default:
     cmds:
@@ -16,15 +21,15 @@ tasks:
 
   flash:serial:
     cmds:
-      - docker compose run esphome run eink.yaml --device /dev/ttyACM0
+      - docker compose run --rm esphome run $CONFIG.yaml --device /dev/ttyACM0
   
   flash:
     cmds:
-      - docker compose run --rm esphome run eink.yaml --device eink.local
+      - docker compose run --rm esphome run $CONFIG.yaml --device eink.local
   
   compile:
     cmds:
-      - docker compose run esphome compile eink.yaml
+      - docker compose run --rm esphome compile $CONFIG.yaml
 
   run:
     cmds:
@@ -33,8 +38,8 @@ tasks:
   
   logs:
     cmds:
-      - docker compose run --rm esphome logs eink.yaml --device eink.local
+      - docker compose run --rm esphome logs $CONFIG.yaml --device eink.local
 
   logs:serial:
     cmds:
-      - docker compose run --rm esphome logs eink.yaml --device /dev/ttyACM0
+      - docker compose run --rm esphome logs $CONFIG.yaml --device /dev/ttyACM0
