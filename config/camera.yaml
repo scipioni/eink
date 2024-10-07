@@ -60,5 +60,7 @@ wifi:
   ssid: !secret WifiSsid
   password: !secret WifiPassword
 
-
 ota:
+  - platform: esphome
+
+api:

@@ -7,11 +7,12 @@ vars:
 
 env:
   CONFIG: eink
+  PORT: /dev/ttyUSB0
 
 tasks:
   default:
     cmds:
-      - echo "config=$CONFIG" 
+      - echo "config=$CONFIG port=$PORT" 
     silent: true
 
   setup:
@@ -20,7 +21,7 @@ tasks:
 
   flash:
     cmds:
-      - docker compose run --rm esphome run $CONFIG.yaml --device /dev/ttyACM0
+      - docker compose run --rm esphome run $CONFIG.yaml --device $PORT
   
   flash:ota:
     cmds:
@@ -41,4 +42,4 @@ tasks:
 
   logs:serial:
     cmds:
-      - docker compose run --rm esphome logs $CONFIG.yaml --device /dev/ttyACM0
+      - docker compose run --rm esphome logs $CONFIG.yaml --device $PORT

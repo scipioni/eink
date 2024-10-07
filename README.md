@@ -11,6 +11,9 @@ boards:
 - firebeetle 2 esp32-c6 v1.0
 - xiao esp32s3 (camera)
 
+hw:
+- AZDelivery 3 x Anello LED RGB compatibile con WS2812B da 5 V
+
 eink 
 ```bash
 CONFIG=eink task flash
