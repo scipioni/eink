@@ -8,6 +8,7 @@ vars:
 env:
   CONFIG: eink
   PORT: /dev/ttyUSB0
+  IP: 192.168.2.60 
 
 tasks:
   default:
@@ -25,7 +26,7 @@ tasks:
   
   flash:ota:
     cmds:
-      - docker compose run --rm esphome run $CONFIG.yaml --device $CONFIG.local
+      - docker compose run --rm esphome run $CONFIG.yaml --device $IP
   
   compile:
     cmds:
