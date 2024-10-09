@@ -112,13 +112,13 @@ void loop() //This code is looped forever
 
     float tot = abs(pitch);
     float fractional = tot - (int)tot;
-    int decimal = (int)round(fractional*10);
+    int decimal = (int)round(NUMPIXELS * fractional*10 / 10);
     
     printf("%09d yaw=%03.2f roll=%03.2f pitch:%03.2f fractional=%f decimal=%d\n", lastTime, yaw, roll, pitch, fractional, decimal);
 
     for(int i=0; i<NUMPIXELS; i++) {
         if (i == decimal )
-            pixels.setPixelColor(i, pixels.Color(0, 150, 0));
+            pixels.setPixelColor(i, pixels.Color(i*25, 0, 255-i*25));
         else
             pixels.setPixelColor(i, pixels.Color(0, 0, 0));
         pixels.show();
