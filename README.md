@@ -13,6 +13,8 @@ boards:
 
 hw:
 - AZDelivery 3 x Anello LED RGB compatibile con WS2812B da 5 V
+- BNO055 accelerometer, gyroscope, magnetometer
+  - https://mischianti.org/bno055-for-esp32-esp8266-and-arduino-wiring-and-advanced-bosch-library-2/ 
 
 eink 
 ```bash
