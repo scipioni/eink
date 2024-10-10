@@ -1,5 +1,10 @@
-#include "bno055.h"
+
+#include "esphome/core/hal.h"
 #include "esphome/core/log.h"
+#include "bno055.h"
+
+/** BNO055 ID **/
+//#define BNO055_ID (0xA0)
 
 namespace esphome {
 namespace bno055 {
@@ -19,9 +24,26 @@ const float BNO055_RANGE_PER_DIGIT_2G = 0.000061f;
 const uint8_t BNO055_BIT_SLEEP_ENABLED = 6;
 const uint8_t BNO055_BIT_TEMPERATURE_DISABLED = 3;
 const float GRAVITY_EARTH = 9.80665f;
+const uint8_t BNO055_CHIP_ID_ADDR = 0x00;
+const uint8_t BNO055_ID = 0xA0;
 
 void BNO055Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up BNO055...");
+
+  // can take 850 ms to boot!
+  delay(850); // in ms
+
+
+  uint8_t id;
+  if (!this->read_byte(BNO055_CHIP_ID_ADDR, &id) ||
+      (id != BNO055_ID)) {
+    this->mark_failed();
+    return;
+  }
+  ESP_LOGCONFIG(TAG, "Started");
+  return; // scipio
+
+
   uint8_t who_am_i;
   if (!this->read_byte(BNO055_REGISTER_WHO_AM_I, &who_am_i) ||
       (who_am_i != 0x68 && who_am_i != 0x70 && who_am_i != 0x98)) {
@@ -100,6 +122,9 @@ void BNO055Component::dump_config() {
 
 void BNO055Component::update() {
   ESP_LOGV(TAG, "    Updating BNO055...");
+  
+  return; // scipio
+  
   uint16_t raw_data[7];
   if (!this->read_bytes_16(BNO055_REGISTER_ACCEL_XOUT_H, raw_data, 7)) {
     this->status_set_warning();

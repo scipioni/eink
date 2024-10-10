@@ -6,9 +6,9 @@ services:
     volumes:
       - ./config:/config
       - /etc/localtime:/etc/localtime:ro
-    #devices:
+    devices:
     #  - /dev/ttyACM0
-    #  - /dev/ttyUSB0
+      - /dev/ttyUSB0
     #privileged: true
     network_mode: host
     #ports:
