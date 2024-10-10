@@ -1,0 +1,62 @@
+
+
+substitutions:
+  node_name: tilt
+  node_friendly_name: "tilt"
+  led_pin: GPIO2
+
+packages:
+  esp_common: !include ./common.yaml
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: arduino
+
+# logger:
+#   level: INFO
+
+
+switch:
+  - platform: gpio
+    pin: ${led_pin}
+    id: led
+    #inverted: true
+
+interval:
+  - interval: 2000ms
+    then:
+      - switch.turn_on: led
+      - delay: 200ms
+      - switch.turn_off: led
+
+i2c:
+
+external_components:
+  #- source: components
+
+  - source:
+      type: local
+      path: components
+    components: [bno055]
+
+
+sensor:
+  - platform: bno055
+    address: 0x29
+    accel_x:
+      name: "BNO055 Accel X"
+
+
+# MiniEncoderC:
+#   id: encoder
+#   i2c_id: bus_b
+#   # address: 0x42
+#   button:
+#     name: Rotary Button
+#     id: rotary_button
+#   encoder:
+#     name: Rotary Encoder
+#     id: rotary
+#     encoder_filter: 2
+#

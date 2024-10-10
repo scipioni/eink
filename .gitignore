@@ -1,2 +1,4 @@
 /hass
 *.blend1
+__pycache__
+experiments
