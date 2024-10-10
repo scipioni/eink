@@ -1,8 +1,8 @@
 
 
 substitutions:
-  node_name: tilt
-  node_friendly_name: "tilt"
+  node_name: bno055
+  node_friendly_name: "bno055 sensor"
   led_pin: GPIO2
 
 packages:

@@ -39,7 +39,7 @@ tasks:
   
   logs:
     cmds:
-      - docker compose run --rm esphome logs $CONFIG.yaml --device eink.local
+      - docker compose run --rm esphome logs $CONFIG.yaml --device $CONFIG.local
 
   logs:serial:
     cmds:
