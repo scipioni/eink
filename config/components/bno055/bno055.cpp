@@ -1,10 +1,10 @@
 
+#include "bno055.h"
 #include "esphome/core/hal.h"
 #include "esphome/core/log.h"
-#include "bno055.h"
 
 /** BNO055 ID **/
-//#define BNO055_ID (0xA0)
+// #define BNO055_ID (0xA0)
 
 namespace esphome {
 namespace bno055 {
@@ -33,16 +33,13 @@ void BNO055Component::setup() {
   // can take 850 ms to boot!
   delay(850); // in ms
 
-
   uint8_t id;
-  if (!this->read_byte(BNO055_CHIP_ID_ADDR, &id) ||
-      (id != BNO055_ID)) {
+  if (!this->read_byte(BNO055_CHIP_ID_ADDR, &id) || (id != BNO055_ID)) {
     this->mark_failed();
     return;
   }
   ESP_LOGCONFIG(TAG, "Started");
   return; // scipio
-
 
   uint8_t who_am_i;
   if (!this->read_byte(BNO055_REGISTER_WHO_AM_I, &who_am_i) ||
@@ -58,7 +55,8 @@ void BNO055Component::setup() {
     this->mark_failed();
     return;
   }
-  ESP_LOGV(TAG, "  Input power_management: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(power_management));
+  ESP_LOGV(TAG, "  Input power_management: 0b" BYTE_TO_BINARY_PATTERN,
+           BYTE_TO_BINARY(power_management));
   // Set clock source - X-Gyro
   power_management &= 0b11111000;
   power_management |= BNO055_CLOCK_SOURCE_X_GYRO;
@@ -66,7 +64,8 @@ void BNO055Component::setup() {
   power_management &= ~(1 << BNO055_BIT_SLEEP_ENABLED);
   // Enable temperature
   power_management &= ~(1 << BNO055_BIT_TEMPERATURE_DISABLED);
-  ESP_LOGV(TAG, "  Output power_management: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(power_management));
+  ESP_LOGV(TAG, "  Output power_management: 0b" BYTE_TO_BINARY_PATTERN,
+           BYTE_TO_BINARY(power_management));
   if (!this->write_byte(BNO055_REGISTER_POWER_MANAGEMENT_1, power_management)) {
     this->mark_failed();
     return;
@@ -79,10 +78,12 @@ void BNO055Component::setup() {
     this->mark_failed();
     return;
   }
-  ESP_LOGV(TAG, "  Input gyro_config: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(gyro_config));
+  ESP_LOGV(TAG, "  Input gyro_config: 0b" BYTE_TO_BINARY_PATTERN,
+           BYTE_TO_BINARY(gyro_config));
   gyro_config &= 0b11100111;
   gyro_config |= BNO055_SCALE_2000_DPS << 3;
-  ESP_LOGV(TAG, "  Output gyro_config: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(gyro_config));
+  ESP_LOGV(TAG, "  Output gyro_config: 0b" BYTE_TO_BINARY_PATTERN,
+           BYTE_TO_BINARY(gyro_config));
   if (!this->write_byte(BNO055_REGISTER_GYRO_CONFIG, gyro_config)) {
     this->mark_failed();
     return;
@@ -95,10 +96,12 @@ void BNO055Component::setup() {
     this->mark_failed();
     return;
   }
-  ESP_LOGV(TAG, "    Input accel_config: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(accel_config));
+  ESP_LOGV(TAG, "    Input accel_config: 0b" BYTE_TO_BINARY_PATTERN,
+           BYTE_TO_BINARY(accel_config));
   accel_config &= 0b11100111;
   accel_config |= (BNO055_RANGE_2G << 3);
-  ESP_LOGV(TAG, "    Output accel_config: 0b" BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(accel_config));
+  ESP_LOGV(TAG, "    Output accel_config: 0b" BYTE_TO_BINARY_PATTERN,
+           BYTE_TO_BINARY(accel_config));
   if (!this->write_byte(BNO055_REGISTER_ACCEL_CONFIG, accel_config)) {
     this->mark_failed();
     return;
@@ -122,9 +125,9 @@ void BNO055Component::dump_config() {
 
 void BNO055Component::update() {
   ESP_LOGV(TAG, "    Updating BNO055...");
-  
+
   return; // scipio
-  
+
   uint16_t raw_data[7];
   if (!this->read_bytes_16(BNO055_REGISTER_ACCEL_XOUT_H, raw_data, 7)) {
     this->status_set_warning();
@@ -166,7 +169,9 @@ void BNO055Component::update() {
 
   this->status_clear_warning();
 }
-float BNO055Component::get_setup_priority() const { return setup_priority::DATA; }
+float BNO055Component::get_setup_priority() const {
+  return setup_priority::DATA;
+}
 
-}  // namespace bno055
-}  // namespace esphome
+} // namespace bno055
+} // namespace esphome
