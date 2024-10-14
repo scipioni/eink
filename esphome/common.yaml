@@ -48,3 +48,36 @@ sensor:
   - platform: uptime
     name: Uptime Sensor
     update_interval: 60s
+    id: uptime_sec
+
+text_sensor:
+  - platform: version
+    name: "${node_name} ESPHome Version"
+  - platform: wifi_info
+    ip_address:
+      name: "${node_name} IP"
+      id: ip_address
+    ssid:
+      name: "${node_name} SSID"
+      id: ssid
+  - platform: template
+    name: "${node_name} Uptime"
+    icon: "mdi:timer"
+    update_interval: 360s
+    lambda: |-
+      int seconds = id(uptime_sec).state;
+      int days = seconds / (24 * 3600);
+      seconds = seconds % (24 * 3600); 
+      int hours = seconds / 3600;
+      seconds = seconds % 3600;
+      int minutes = seconds /  60;
+      return { (String(days) +"d " + String(hours) +"h " + String(minutes) +"m").c_str() };
+
+#deep_sleep:
+#  run_duration: 8s
+#  sleep_duration: 10min
+#  wakeup_pin:
+#    number: 39
+#    inverted: True
+#  wakeup_pin_mode: IGNORE
+#  id: deep_sleep_1

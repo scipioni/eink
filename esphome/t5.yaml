@@ -1,0 +1,70 @@
+
+
+substitutions:
+  node_name: ttgo-t5
+  node_friendly_name: "ttgo t5"
+
+packages:
+  esp_common: !include ./common.yaml
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# logger:
+#   level: INFO
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+spi:
+  clk_pin: 18
+  mosi_pin: 23
+
+font:
+  - file: "fonts/Roboto-Regular.ttf"
+    id: roboto
+    size: 20
+
+display:
+  - platform: waveshare_epaper
+    cs_pin: 5
+    dc_pin: 17
+    busy_pin: 4
+    reset_pin: 16
+    model: 2.13in-ttgo-b73
+    #model: 7.50inV2 
+    update_interval: 5s
+    #full_update_every: 30
+    rotation: 90°
+    lambda: |-
+      it.printf(0, 0, id(roboto), "Hello World!");
+      it.strftime(0, 16, id(roboto), "%Y-%m-%d %H:%M", id(homeassistant_time).now());
+      it.printf(0, 32, id(roboto), "Button is %s", id(user_button).state ? "PRESSED" : "RELEASED");
+      
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: 39
+      inverted: True
+      #mode: INPUT_PULLUP
+    name: "${node_name} - Button"
+    id: user_button
+
+switch:
+  - platform: gpio
+    name: "${node_name} - Onboard LED"
+    pin: 19
+    id: onboard_led
+  - platform: restart
+    name: "${node_name} - Restart"
+    id: restart_switch
+
+interval:
+  - interval: 2000ms
+    then:
+      - switch.turn_on: onboard_led
+      - delay: 200ms
+      - switch.turn_off: onboard_led

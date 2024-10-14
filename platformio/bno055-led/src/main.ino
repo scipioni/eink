@@ -31,7 +31,9 @@ float pitch = .0;
 float roll = .0;
 float yaw = .0;
 
+#ifdef PIXELS
 Adafruit_NeoPixel pixels(NUMPIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+#endif
 
 struct Calibration {
    float pitch;
@@ -46,7 +48,9 @@ void setup() //This code is executed once
     pinMode(BUTTON, INPUT_PULLUP);  //Boot button
 
     pinMode(LED,OUTPUT);
+#ifdef PIXELS
     pixels.begin();
+#endif
 
 	//Initialize I2C communication
 	Wire.begin();
@@ -108,6 +112,7 @@ void loop() //This code is looped forever
     
     printf("%09d yaw=%.2f roll=%.2f pitch:%.2f module:%.2f decimal=%d\n", lastTime, yaw, roll, pitch, tot, decimal);
 
+#ifdef PIXELS
     for(int i=0; i<NUMPIXELS; i++) {
         if (i == decimal )
             pixels.setPixelColor(i, pixels.Color(i*25, 0, 255-i*25));
@@ -115,6 +120,7 @@ void loop() //This code is looped forever
             pixels.setPixelColor(i, pixels.Color(0, 0, 0));
         pixels.show();
     }
+#endif
   }
   delay(10);
 }
