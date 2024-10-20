@@ -36,6 +36,10 @@ tasks:
     cmds:
       - task: compile
       - task: flash:serial
+
+  identify:
+    cmds:
+      - esptool.py -p /dev/ttyUSB0 chip_id
   
   logs:
     cmds:
