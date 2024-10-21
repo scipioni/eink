@@ -1,0 +1,66 @@
+
+
+substitutions:
+  node_name: mpu6050
+  node_friendly_name: "mpu6050 sensor"
+  led_pin: GPIO2
+
+packages:
+  esp_common: !include ./common.yaml
+
+esp8266:
+  #board: nodemcuv2
+  board: d1_mini
+  framework:
+    version: recommended
+
+# logger:
+#   level: INFO
+
+
+switch:
+  - platform: gpio
+    pin: ${led_pin}
+    id: led
+    #inverted: true
+
+interval:
+  - interval: 2000ms
+    then:
+      - switch.turn_on: led
+      - delay: 200ms
+      - switch.turn_off: led
+
+i2c:
+
+sensor:
+  - platform: mpu6050
+    address: 0x68
+    accel_x:
+      name: "MPU6050 Accel X"
+    accel_y:
+      name: "MPU6050 Accel Y"
+    accel_z:
+      name: "MPU6050 Accel z"
+    gyro_x:
+      name: "MPU6050 Gyro X"
+    gyro_y:
+      name: "MPU6050 Gyro Y"
+    gyro_z:
+      name: "MPU6050 Gyro z"
+    temperature:
+      name: "MPU6050 Temperature"
+
+
+# MiniEncoderC:
+#   id: encoder
+#   i2c_id: bus_b
+#   # address: 0x42
+#   button:
+#     name: Rotary Button
+#     id: rotary_button
+#   encoder:
+#     name: Rotary Encoder
+#     id: rotary
+#     encoder_filter: 2
+#
