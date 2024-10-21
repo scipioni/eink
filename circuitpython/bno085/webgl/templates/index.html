@@ -54,7 +54,7 @@
                 </select>
               </div>
               <div class="form-group">
-                <button type="button" class="btn btn-primary" id="straighten">Calibra</button>
+                <button type="button" class="btn btn-primary" id="calibration">Calibra</button>
               </div>
               <div class="form-group">
                 <button type="button" class="btn btn-primary" id="saveCalibration">Save Calibration</button>
@@ -240,7 +240,7 @@
         });
 
         // Straighten button click handler.
-        $('#straighten').click(function() {
+        $('#calibration').click(function() {
           // Get the current orientation of the BNO sensor and compute its
           // conjugate or reverse rotation and apply it to the offset group.
           // This will reset the 3D model so that it faces directly forward based
@@ -248,6 +248,7 @@
           //var currentQuat = new THREE.Quaternion(bnoData.x, bnoData.z, bnoData.y, 0).normalize();
           var currentQuat = new THREE.Quaternion(bnoData.quaternion[1], bnoData.quaternion[2], bnoData.quaternion[0], bnoData.quaternion[3]).normalize(); // quaternion x,y,z,w in webgl y è l'asse verticale, xz è il piano orizzontale
           offset.quaternion.copy(currentQuat.conjugate());
+          $.post("{{ url_for('save_calibration') }}");
         });
 
         // Save calibration click handler calls the /save_calibration API.

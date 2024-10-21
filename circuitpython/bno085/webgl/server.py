@@ -2,6 +2,9 @@ import json
 import threading
 import time
 import math
+import numpy as np
+import quaternion
+from scipy.spatial.transform import Rotation as R
 
 import board
 import busio
@@ -20,11 +23,11 @@ CALIBRATION_FILE = "calibration.json"
 
 app = flask.Flask(__name__)
 
-bno_data = {}
+bno_data = {"q0":None}
 bno_changed = threading.Condition()
 bno_thread = None
 
-def euler_from_quaternion(q, precision=1):
+def euler_from_quaternion2(q, precision=1):
         """
         Convert a quaternion into euler angles (roll, pitch, yaw)
         roll is rotation around x in radians (counterclockwise)
@@ -47,6 +50,12 @@ def euler_from_quaternion(q, precision=1):
      
         return {"pitch": round(math.degrees(pitch_y),precision), "roll":round(math.degrees(roll_x),precision), "yaw":round(math.degrees(yaw_z),precision)}
 
+def euler_from_quaternion(q, precision=1):
+        i, j, k, w = q
+        r = R.from_quat([i, j, k, w])
+        euler = [round(x, precision) for x in r.as_euler('xyz', degrees=True)]
+        return {"pitch": euler[1], "roll": euler[0], "yaw": euler[2]}
+
 def read_bno():
     while True:
         with bno_changed:
@@ -56,19 +65,33 @@ def read_bno():
             bno_changed.notify_all()
         time.sleep(1.0 / BNO_UPDATE_FREQUENCY_HZ)
 
+
+def offset(q, q0):
+    i, j, k, w = q
+    q_ = quaternion.quaternion(w,i,j,k)
+    i, j, k, w = q0
+    q0_ = quaternion.quaternion(w,i,j,k)
+    r = (q_ + q0_.conjugate()).normalized()
+    return [r.x,r.y,r.z,r.w]
+
+
 def bno_sse():
     while True:
         with bno_changed:
             bno_changed.wait()
             x, y, z = bno_data["gravity"]
-        data = {
-            "x": round(x,2),
-            "y": round(y,2), 
-            "z": round(z,2),
-            "quaternion": [round(x,2) for x in bno_data["quaternion"]],
-            "euler": euler_from_quaternion(bno_data["quaternion"]),
-        }
-        yield "data: {0}\n\n".format(json.dumps(data))
+            quat = bno_data["quaternion"]
+            q0 = bno_data["q0"]
+            if q0:
+                quat = offset(quat, q0)
+            data = {
+                "x": round(x,2),
+                "y": round(y,2), 
+                "z": round(z,2),
+                "quaternion": [round(x,2) for x in quat],
+                "euler": euler_from_quaternion(quat),
+            }
+            yield "data: {0}\n\n".format(json.dumps(data))
 
 
 @app.before_first_request
@@ -86,6 +109,8 @@ def bno_path():
 
 @app.route("/save_calibration", methods=["POST"])
 def save_calibration():
+    bno_data["q0"] = bno.quaternion
+    print(f"save q0={bno.quaternion}")
     return "OK"
 
 @app.route("/load_calibration", methods=["POST"])
