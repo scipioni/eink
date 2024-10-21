@@ -34,9 +34,11 @@ i2c = board.I2C()
 
 print([hex(address) for address in i2c.scan()])
 
+```
 
-
-
+enable mdns
+```
+sudo apt-get install avahi-daemon libnss-mdns libnss-mymachines
 ```
 
 
