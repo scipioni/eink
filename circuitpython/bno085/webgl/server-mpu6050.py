@@ -13,6 +13,7 @@ from adafruit_mpu6050 import MPU6050, Range
 i2c = board.I2C()  # uses board.SCL and board.SDA
 mpu = MPU6050(i2c)
 mpu.accelerometer_range = Range.RANGE_2_G
+print(dir(mpu))
 
 BNO_UPDATE_FREQUENCY_HZ = 10
 
@@ -32,7 +33,7 @@ def read_bno():
 
 
 
-def offset_g(g, g0, precision=2):
+def offset_g(g, g0, precision=1):
     x, y, z = g
     x0, y0, z0 = g0
     
