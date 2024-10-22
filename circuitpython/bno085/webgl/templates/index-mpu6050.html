@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Demo Acc</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+        <style>
+            body {
+              padding-top: 50px;
+              padding-bottom: 20px;
+            }
+
+	    .gravity { font-size: 20px; }
+        </style>
+
+    </head>
+    <body>
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <h1 class="text-center">Demo Gravità 0.0.1</h1>
+            <h3 id="connecting">Connecting...</h3>
+            <div class="col-sm-12" id="renderer">
+            </div>
+          </div>
+        </div>
+        <div class="row" id="controls">
+          <div class="col-sm-4">
+            <h3>Gravity</h3>
+	    <div class="gravity">
+		    <div>gravity=<span id="gravity">0</span></div>
+	    </div>
+          </div>
+          <div class="col-sm-4">
+            <h3>Quaternion</h3>
+	    <div class="gravity">
+		    <div>x=<span id="qx">0</span></div>
+		    <div>y=<span id="qy">0</span></div>
+		    <div>z=<span id="qz">0</span></div>
+		    <div>w=<span id="qw">0</span></div>
+		    <div>euler=<span id="euler">0</span></div>
+	    </div>
+          </div>
+          <div class="col-sm-4">
+            <form>
+              <div class="form-group">
+                <label for="model">Model:
+                <select class="form-control" id="model">
+                </select>
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn-primary" id="calibration">Calibra</button>
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn-primary" id="saveCalibration">Save Calibration</button>
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn-primary" id="loadCalibration">Load Calibration</button>
+              </div>
+            </form>
+          </div>
+        </div>
+	<div><img src="{{ url_for('static', filename='yaw_pitch_roll.jpg') }}"/></div>
+      </div>
+      <script src="{{ url_for('static', filename='js/jquery-2.1.4.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/three.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/DDSLoader.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/MTLLoader.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/OBJMTLLoader.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/OBJLoader.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/STLLoader.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+      <script>
+      $(document).ready(function() {
+        // Configuration
+        // Set size of the WebGL renderer scene.
+        var sceneWidth = 1024;
+        var sceneHeight = 1024;
+        // Define list of 3D models.  Each item should have a name property that
+        // will be rendered in the drop down, and a load function that is called
+        // with the model instance and should add a model property with a Three.js
+        // scene graph object that will be rendered.
+        var models = [
+          {
+            name: 'Palo Camera',
+            load: function(model) {
+              stlLoader.load(
+                '{{ url_for('static', filename='pole.stl') }}',
+                function(geometry) {
+                  // Regenerate normals because they aren't loaded properly.
+                  geometry.computeFaceNormals();
+                  geometry.computeVertexNormals();
+                  // Load the model and build mesh.
+                  model.model = new THREE.Mesh(geometry, material);
+                  // Rotate, scale, and move so the cat is facing out the screen.
+                  model.model.rotation.x = -90 * (Math.PI / 180.0);
+                  model.model.scale.set(0.15, 0.15, 0.15);
+                  model.model.position.y = -2;
+                }
+              );
+            }
+          },
+          {
+            name: 'Palo',
+            load: function(model) {
+              // Build some cylinders and rotate them to form a cross of the XYZ axes.
+	      var h=10;
+              model.model = new THREE.Group();
+              var palo = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, h, 32, 32), material);
+              //palo.rotation.z = 90.0*(Math.PI/180.0);
+              //palo.rotation.z = 90.0*(Math.PI/180.0);
+              model.model.add(palo);
+              palo.position.y=h/2		
+              
+
+	      var basamento = new THREE.Mesh(new THREE.CylinderGeometry(0.70, 0.70, 0.1, 32, 32), material);
+              //basamento.position.y=-4		
+              model.model.add(basamento);
+              //palo.position.y = -4;
+              
+	      //var yAxis = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 8, 32, 32), material);
+              //model.model.add(yAxis);
+              //var zAxis = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 4, 32, 32), material);
+              //zAxis.rotation.x = 90.0*(Math.PI/180.0);
+              //model.model.add(zAxis);
+              //zAxis.position.y = -4;
+            }
+          },
+          {
+            name: 'Cat Statue',
+            load: function(model) {
+              stlLoader.load(
+                '{{ url_for('static', filename='cat-top.stl') }}',
+                function(geometry) {
+                  // Regenerate normals because they aren't loaded properly.
+                  geometry.computeFaceNormals();
+                  geometry.computeVertexNormals();
+                  // Load the model and build mesh.
+                  model.model = new THREE.Mesh(geometry, material);
+                  // Rotate, scale, and move so the cat is facing out the screen.
+                  model.model.rotation.x = -90 * (Math.PI / 180.0);
+                  model.model.scale.set(0.15, 0.15, 0.15);
+                  model.model.position.y = -4;
+                }
+              );
+            }
+          },
+        ];
+
+        // Global state.
+        var bnoData = null;
+        var offset = null;
+        var orientation = null;
+        var objMTLLoader = new THREE.OBJMTLLoader();
+        var stlLoader = new THREE.STLLoader();
+        var currentModel = null;
+
+        // Start with main controls hidden until connected.
+        $('#controls').hide();
+
+        // Setup Three.js scene and camera.
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, sceneWidth / sceneHeight, 0.1, 1000);
+        // Start with the camera moved back a bit to look directly at the origin.
+        camera.position.z = 10;
+        camera.position.y = 4;
+
+        // Setup Three.js WebGL renderer and add it to the page.
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(sceneWidth, sceneHeight);
+        renderer.setClearColor(0xffffff, 1); // color and opacity
+        $('#renderer').append(renderer.domElement);
+        $('#renderer canvas').addClass('center-block');  // Center the renderer.
+
+        // Create white material for the models.
+        var material = new THREE.MeshPhongMaterial({ color: 0xffffff });
+
+        // Setup 3 point lighting with a red and blue point light in upper left
+        // and right corners, plus a bit of backlight from the rear forward.
+        var pointLight1 = new THREE.PointLight(0xffbbbb, 0.6);
+        pointLight1.position.set(40, 15, 40);
+        scene.add(pointLight1);
+        var pointLight2 = new THREE.PointLight(0xbbbbff, 0.6);
+        pointLight2.position.set(-40, 15, 40);
+        scene.add(pointLight2);
+        var backLight = new THREE.DirectionalLight(0xffff, 0.3);
+        backLight.position.set(0, -0.25, -1);
+        scene.add(backLight);
+
+        // Create a couple groups to apply rotations to the 3D model at different
+        // stages.  The outer group called offset is set to the reverse rotation
+        // of the current BNO orientation when the 'Straighten' button is clicked.
+        // This will force the model to center itself staring directly out of
+        // the screen.  The inner group called orientation will be rotated with
+        // the current BNO sensor orientation and cause the model to rotate.
+        offset = new THREE.Group();
+        orientation = new THREE.Group();
+        offset.add(orientation);
+        scene.add(offset);
+
+        // Main rendering function.
+        function render() {
+          requestAnimationFrame(render);
+          // Switch to the first model once it's loaded.
+          if (currentModel === null) {
+            if (models[0].hasOwnProperty('model')) {
+              currentModel = 0;
+              orientation.add(models[0].model);
+            }
+          }
+          // Update the orientation with the last BNO sensor reading quaternion.
+          if (bnoData !== null) {
+           //orientation.quaternion.set(bnoData.x, bnoData.z, bnoData.y, 0).normalize(); // quaternion x,y,z,w in webgl y è l'asse verticale, xz è il piano orizzontale
+           orientation.quaternion.set(bnoData.quaternion[1], bnoData.quaternion[2], bnoData.quaternion[0], bnoData.quaternion[3]).normalize(); // quaternion x,y,z,w in webgl y è l'asse verticale, xz è il piano orizzontale
+          }
+          renderer.render(scene, camera);
+        }
+        render();
+
+        // Populate drop-down of 3D models and load all the models..
+        $.each(models, function(index, model) {
+          // Populate drop-down.
+          $('#model').append($("<option />").val(index).text(model.name));
+          // Kick off loading the model.
+          model.load(model);
+        });
+
+        // Model list changed event.
+        $('#model').change(function() {
+          // Remove the old model.
+          orientation.remove(models[currentModel].model);
+          // Update the current model and add it to the scene.
+          currentModel = $('#model')[0].selectedIndex;
+          orientation.add(models[currentModel].model);
+        });
+
+        // Straighten button click handler.
+        $('#calibration').click(function() {
+          // Get the current orientation of the BNO sensor and compute its
+          // conjugate or reverse rotation and apply it to the offset group.
+          // This will reset the 3D model so that it faces directly forward based
+          // on the current BNO sensor orientation.
+          //var currentQuat = new THREE.Quaternion(bnoData.x, bnoData.z, bnoData.y, 0).normalize();
+          var currentQuat = new THREE.Quaternion(bnoData.quaternion[1], bnoData.quaternion[2], bnoData.quaternion[0], bnoData.quaternion[3]).normalize(); // quaternion x,y,z,w in webgl y è l'asse verticale, xz è il piano orizzontale
+          offset.quaternion.copy(currentQuat.conjugate());
+          $.post("{{ url_for('save_calibration') }}");
+        });
+
+        // Save calibration click handler calls the /save_calibration API.
+        $('#saveCalibration').click(function() {
+          $.post("{{ url_for('save_calibration') }}");
+        });
+        $('#saveCalibration').hide();
+
+        // Load calibration click handler calls the /load_calibration API.
+        $('#loadCalibration').click(function() {
+          $.post("{{ url_for('load_calibration') }}");
+        });
+        $('#loadCalibration').hide();
+
+        // Function called when a new sensor reading is received.
+        function updateSensorData(data) {
+          // Save the reading then update the UI.
+          bnoData = data;
+          $('#qx').text(data.quaternion[0]);
+          $('#qy').text(data.quaternion[1]);
+          $('#qz').text(data.quaternion[2]);
+          $('#qw').text(data.quaternion[3]);
+          $('#euler').text(JSON.stringify(data.euler));
+          $('#gravity').text(JSON.stringify(data.gravity));
+        }
+
+        // Create server sent event connection to receive BNO sensor data.
+        var server = new EventSource('/bno');
+        server.onmessage = function(e) {
+          var message = JSON.parse(e.data);
+	  updateSensorData(message);
+	  console.log("message:", message)
+	   
+        };
+        server.onopen = function(e) {
+          // Hide connecting status and show controls when connection is made.
+          $('#connecting').hide();
+          $('#controls').show();
+        };
+        server.onerror = function(e) {
+          // Hide controls and show connecting status if connection closes.
+          $('#controls').hide();
+          $('#connecting').show();
+        };
+      });
+      </script>
+    </body>
+</html>

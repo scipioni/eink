@@ -8,7 +8,7 @@ import time
 import board
 import flask
 
-from adafruit_mpu6050 import MPU6050
+from adafruit_mpu6050 import MPU6050, Range
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
 mpu = MPU6050(i2c)
@@ -75,7 +75,7 @@ def load_calibration():
 
 @app.route("/")
 def root():
-    return flask.render_template("index.html")
+    return flask.render_template("index-mpu6050.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=True, threaded=True)
