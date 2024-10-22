@@ -23,7 +23,7 @@ CALIBRATION_FILE = "calibration.json"
 
 app = flask.Flask(__name__)
 
-bno_data = {"q0":None}
+bno_data = {"q0":None, "g0":[.0,.0,.0]}
 bno_changed = threading.Condition()
 bno_thread = None
 
@@ -74,20 +74,24 @@ def offset(q, q0):
     r = (q_ + q0_.conjugate()).normalized()
     return [r.x,r.y,r.z,r.w]
 
+def offset_g(g, g0, precision=2):
+    x, y, z = g
+    x0, y0, z0 = g0
+    
+    return {"x": round(x-x0, precision), "y": round(y-y0, precision), "z": round(z-z0, precision)}
 
 def bno_sse():
     while True:
         with bno_changed:
             bno_changed.wait()
             x, y, z = bno_data["gravity"]
+            gravity = offset_g(bno_data["gravity"], bno_data["g0"])
             quat = bno_data["quaternion"]
             q0 = bno_data["q0"]
             if q0:
                 quat = offset(quat, q0)
             data = {
-                "x": round(x,2),
-                "y": round(y,2), 
-                "z": round(z,2),
+                "gravity": gravity,
                 "quaternion": [round(x,2) for x in quat],
                 "euler": euler_from_quaternion(quat),
             }
@@ -110,6 +114,7 @@ def bno_path():
 @app.route("/save_calibration", methods=["POST"])
 def save_calibration():
     bno_data["q0"] = bno.quaternion
+    bno_data["g0"] = bno.gravity
     print(f"save q0={bno.quaternion}")
     return "OK"
 
@@ -122,4 +127,4 @@ def root():
     return flask.render_template("index.html")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True, threaded=True)
+    app.run(host="0.0.0.0", port=80, debug=True, threaded=True)
