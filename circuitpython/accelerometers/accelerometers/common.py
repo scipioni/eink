@@ -10,11 +10,14 @@ maxs = {"x":0, "y":0, "z":0}
 deltas = {"x":0, "y":0, "z":0}
 
 def set_delta(p="x", value=0):
+    if not value:
+        return
+    value = abs(value)
     if value < mins[p]:
         mins[p] = value
     if value > maxs[p]:
         maxs[p] = value
-    deltas[p] = 100*(maxs[p] - mins[p])/value
+    deltas[p] = 100*(maxs[p] - mins[p])/mins[p]
 
 
 def run(sensor):

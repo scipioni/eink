@@ -23,32 +23,25 @@ CALIBRATION_FILE = "calibration.json"
 
 app = flask.Flask(__name__)
 
-bno_data = {"q0":None, "g0":[.0,.0,.0]}
+data = {"q0":None, "g0":[.0,.0,.0], "a0":.0}
+try:
+    with open(CALIBRATION_FILE, 'r') as f:
+        data = json.load(f)
+except:
+    print("failed to load {CALIBRATION_FILE}, initialize with default {data}")
+
 bno_changed = threading.Condition()
 bno_thread = None
 
-def euler_from_quaternion2(q, precision=1):
-        """
-        Convert a quaternion into euler angles (roll, pitch, yaw)
-        roll is rotation around x in radians (counterclockwise)
-        pitch is rotation around y in radians (counterclockwise)
-        yaw is rotation around z in radians (counterclockwise)
-        """
-        x, y, z, w = q
-        t0 = +2.0 * (w * x + y * z)
-        t1 = +1.0 - 2.0 * (x * x + y * y)
-        roll_x = math.atan2(t0, t1)
-     
-        t2 = +2.0 * (w * y - z * x)
-        t2 = +1.0 if t2 > +1.0 else t2
-        t2 = -1.0 if t2 < -1.0 else t2
-        pitch_y = math.asin(t2)
-     
-        t3 = +2.0 * (w * z + x * y)
-        t4 = +1.0 - 2.0 * (y * y + z * z)
-        yaw_z = math.atan2(t3, t4)
-     
-        return {"pitch": round(math.degrees(pitch_y),precision), "roll":round(math.degrees(roll_x),precision), "yaw":round(math.degrees(yaw_z),precision)}
+def get_angle(x, y, z):
+    """
+    from vector and gravity
+
+    """
+    xy = math.sqrt(x**2 + y**2)
+    angle_z = math.atan2(xy, z)
+
+    return math.degrees(angle_z)
 
 def euler_from_quaternion(q, precision=1):
         i, j, k, w = q
@@ -59,9 +52,9 @@ def euler_from_quaternion(q, precision=1):
 def read_bno():
     while True:
         with bno_changed:
-            bno_data["gravity"] = bno.gravity
-            bno_data["quaternion"] = bno.quaternion
-            bno_data["calibration"] = bno.calibration_status
+            data["gravity"] = bno.gravity
+            data["quaternion"] = bno.quaternion
+            data["calibration"] = bno.calibration_status
             bno_changed.notify_all()
         time.sleep(1.0 / BNO_UPDATE_FREQUENCY_HZ)
 
@@ -80,22 +73,27 @@ def offset_g(g, g0, precision=2):
     
     return {"x": round(x-x0, precision), "y": round(y-y0, precision), "z": round(z-z0, precision)}
 
+def offset_angle(angle, a0, precision=1):
+    return abs(angle-a0)
+
 def bno_sse():
     while True:
         with bno_changed:
             bno_changed.wait()
-            x, y, z = bno_data["gravity"]
-            gravity = offset_g(bno_data["gravity"], bno_data["g0"])
-            quat = bno_data["quaternion"]
-            q0 = bno_data["q0"]
+            x, y, z = data["gravity"]
+            gravity = offset_g(data["gravity"], data["g0"])
+            angle = offset_angle(get_angle(x,y,z), data["a0"])
+            quat = data["quaternion"]
+            q0 = data["q0"]
             if q0:
                 quat = offset(quat, q0)
-            data = {
+            payload = {
                 "gravity": gravity,
                 "quaternion": [round(x,2) for x in quat],
                 "euler": euler_from_quaternion(quat),
+                "angle": f"{angle:.1f}",
             }
-            yield "data: {0}\n\n".format(json.dumps(data))
+            yield "data: {0}\n\n".format(json.dumps(payload))
 
 
 @app.before_first_request
@@ -109,12 +107,14 @@ def start_bno_thread():
 @app.route("/bno")
 def bno_path():
     return flask.Response(bno_sse(), mimetype="text/event-stream")
- 
 
 @app.route("/save_calibration", methods=["POST"])
 def save_calibration():
-    bno_data["q0"] = bno.quaternion
-    bno_data["g0"] = bno.gravity
+    data["q0"] = bno.quaternion
+    data["g0"] = bno.gravity
+    data["a0"] = get_angle(*bno.gravity)
+    with open(CALIBRATION_FILE, 'w') as f:
+        json.dump(data, f)
     print(f"save q0={bno.quaternion}")
     return "OK"
 
