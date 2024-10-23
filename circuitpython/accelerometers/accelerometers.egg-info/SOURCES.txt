@@ -1,0 +1,9 @@
+setup.py
+acceleromenters/__init__.py
+acceleromenters/adxl345.py
+acceleromenters/common.py
+acceleromenters/mpu6050.py
+accelerometers.egg-info/PKG-INFO
+accelerometers.egg-info/SOURCES.txt
+accelerometers.egg-info/dependency_links.txt
+accelerometers.egg-info/top_level.txt
