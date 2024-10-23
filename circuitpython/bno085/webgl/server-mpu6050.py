@@ -8,11 +8,12 @@ import time
 import board
 import flask
 
-from adafruit_mpu6050 import MPU6050
+from adafruit_mpu6050 import MPU6050, Range
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
 mpu = MPU6050(i2c)
 mpu.accelerometer_range = Range.RANGE_2_G
+print(dir(mpu))
 
 BNO_UPDATE_FREQUENCY_HZ = 10
 
@@ -32,7 +33,7 @@ def read_bno():
 
 
 
-def offset_g(g, g0, precision=2):
+def offset_g(g, g0, precision=1):
     x, y, z = g
     x0, y0, z0 = g0
     
@@ -75,7 +76,7 @@ def load_calibration():
 
 @app.route("/")
 def root():
-    return flask.render_template("index.html")
+    return flask.render_template("index-mpu6050.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=True, threaded=True)

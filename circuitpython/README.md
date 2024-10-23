@@ -42,6 +42,7 @@ sudo apt-get install avahi-daemon libnss-mdns libnss-mymachines
 ```
 
 
-## on ESP32
+## mpu-6050
 
-TODO
+
+x=0.46 / 28%            y=0.20 / 63%            z=9.64 / 2%

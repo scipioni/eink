@@ -2,7 +2,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Demo BNO085</title>
+        <title>Demo Acc</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -21,7 +21,7 @@
       <div class="container">
         <div class="row">
           <div class="col-sm-12">
-            <h1 class="text-center">Demo Gravità</h1>
+            <h1 class="text-center">Demo Gravità 0.0.1</h1>
             <h3 id="connecting">Connecting...</h3>
             <div class="col-sm-12" id="renderer">
             </div>
@@ -32,7 +32,6 @@
             <h3>Gravity</h3>
 	    <div class="gravity">
 		    <div>gravity=<span id="gravity">0</span></div>
-		    <div>angle=<span id="angle">0</span></div>
 	    </div>
           </div>
           <div class="col-sm-4">
@@ -42,7 +41,6 @@
 		    <div>y=<span id="qy">0</span></div>
 		    <div>z=<span id="qz">0</span></div>
 		    <div>w=<span id="qw">0</span></div>
-		    <div>quaternion=<span id="quaternion">0</span></div>
 		    <div>euler=<span id="euler">0</span></div>
 	    </div>
           </div>
@@ -77,14 +75,8 @@
       <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
       <script>
       $(document).ready(function() {
-        // Configuration
-        // Set size of the WebGL renderer scene.
         var sceneWidth = 1024;
         var sceneHeight = 1024;
-        // Define list of 3D models.  Each item should have a name property that
-        // will be rendered in the drop down, and a load function that is called
-        // with the model instance and should add a model property with a Three.js
-        // scene graph object that will be rendered.
         var models = [
           {
             name: 'Palo Camera',
@@ -92,12 +84,9 @@
               stlLoader.load(
                 '{{ url_for('static', filename='pole.stl') }}',
                 function(geometry) {
-                  // Regenerate normals because they aren't loaded properly.
                   geometry.computeFaceNormals();
                   geometry.computeVertexNormals();
-                  // Load the model and build mesh.
                   model.model = new THREE.Mesh(geometry, material);
-                  // Rotate, scale, and move so the cat is facing out the screen.
                   model.model.rotation.x = -90 * (Math.PI / 180.0);
                   model.model.scale.set(0.15, 0.15, 0.15);
                   model.model.position.y = -2;
@@ -119,16 +108,7 @@
               
 
 	      var basamento = new THREE.Mesh(new THREE.CylinderGeometry(0.70, 0.70, 0.1, 32, 32), material);
-              //basamento.position.y=-4		
               model.model.add(basamento);
-              //palo.position.y = -4;
-              
-	      //var yAxis = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 8, 32, 32), material);
-              //model.model.add(yAxis);
-              //var zAxis = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 4, 32, 32), material);
-              //zAxis.rotation.x = 90.0*(Math.PI/180.0);
-              //model.model.add(zAxis);
-              //zAxis.position.y = -4;
             }
           },
           {
@@ -137,12 +117,9 @@
               stlLoader.load(
                 '{{ url_for('static', filename='cat-top.stl') }}',
                 function(geometry) {
-                  // Regenerate normals because they aren't loaded properly.
                   geometry.computeFaceNormals();
                   geometry.computeVertexNormals();
-                  // Load the model and build mesh.
                   model.model = new THREE.Mesh(geometry, material);
-                  // Rotate, scale, and move so the cat is facing out the screen.
                   model.model.rotation.x = -90 * (Math.PI / 180.0);
                   model.model.scale.set(0.15, 0.15, 0.15);
                   model.model.position.y = -4;
@@ -215,9 +192,10 @@
           }
           // Update the orientation with the last BNO sensor reading quaternion.
           if (bnoData !== null) {
-           //orientation.quaternion.set(bnoData.x, bnoData.z, bnoData.y, 0).normalize(); // quaternion x,y,z,w in webgl y è l'asse verticale, xz è il piano orizzontale
-           orientation.quaternion.set(bnoData.quaternion[1], bnoData.quaternion[2], bnoData.quaternion[0], bnoData.quaternion[3]).normalize(); // quaternion x,y,z,w in webgl y è l'asse verticale, xz è il piano orizzontale
+           ; //orientation.quaternion.set(bnoData.quaternion[1], bnoData.quaternion[2], bnoData.quaternion[0], bnoData.quaternion[3]).normalize(); // quaternion x,y,z,w in webgl y è l'asse verticale, xz è il piano orizzontale
           }
+
+
           renderer.render(scene, camera);
         }
         render();
@@ -247,7 +225,7 @@
           // on the current BNO sensor orientation.
           //var currentQuat = new THREE.Quaternion(bnoData.x, bnoData.z, bnoData.y, 0).normalize();
           var currentQuat = new THREE.Quaternion(bnoData.quaternion[1], bnoData.quaternion[2], bnoData.quaternion[0], bnoData.quaternion[3]).normalize(); // quaternion x,y,z,w in webgl y è l'asse verticale, xz è il piano orizzontale
-          //offset.quaternion.copy(currentQuat.conjugate());
+          offset.quaternion.copy(currentQuat.conjugate());
           $.post("{{ url_for('save_calibration') }}");
         });
 
@@ -267,14 +245,12 @@
         function updateSensorData(data) {
           // Save the reading then update the UI.
           bnoData = data;
-          $('#qx').text(data.quaternion[0]);
-          $('#qy').text(data.quaternion[1]);
-          $('#qz').text(data.quaternion[2]);
-          $('#qw').text(data.quaternion[3]);
-          $('#quaternion').text(data.quaternion);
-          $('#euler').text(JSON.stringify(data.euler));
+          //$('#qx').text(data.quaternion[0]);
+          //$('#qy').text(data.quaternion[1]);
+          //$('#qz').text(data.quaternion[2]);
+          //$('#qw').text(data.quaternion[3]);
+          //$('#euler').text(JSON.stringify(data.euler));
           $('#gravity').text(JSON.stringify(data.gravity));
-          $('#angle').text(JSON.stringify(data.angle));
         }
 
         // Create server sent event connection to receive BNO sensor data.
