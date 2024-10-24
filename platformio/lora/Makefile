@@ -6,7 +6,10 @@ all:
 	pio run
 
 upload:
-	pio run --target upload
+	pio run --target upload --target monitor
+
+log:
+	pio run --target monitor
 
 clean:
 	pio run --target clean
