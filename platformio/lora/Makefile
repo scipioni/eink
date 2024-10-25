@@ -5,6 +5,12 @@
 all:
 	pio run
 
+compile_commands.json:
+	./create-conf.sh
+	make db
+
+flash: upload
+
 upload:
 	pio run --target upload --target monitor
 
@@ -16,3 +22,6 @@ clean:
 
 update:
 	pio pkg update
+
+db: 
+	pio run -t compiledb

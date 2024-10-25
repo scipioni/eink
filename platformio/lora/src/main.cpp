@@ -8,11 +8,6 @@
 #define HELTEC_NO_DISPLAY_INSTANCE
 #include <heltec_unofficial.h>
 
-// Pause between transmited packets in seconds.
-// Set to zero to only transmit a packet when pressing the user button
-// Will not exceed 1% duty cycle, even if you set a lower value.
-#define PAUSE 300
-
 // Frequency in MHz. Keep the decimal point to designate float.
 // Check your own rules and regulations to see what is legal where you are.
 #define FREQUENCY 866.3 // for Europe
@@ -35,6 +30,7 @@
 #define TRANSMIT_POWER 2
 
 String rxdata;
+String txdata;
 volatile bool rxFlag = false;
 long counter = 0;
 uint64_t last_tx = 0;
@@ -61,30 +57,25 @@ void setup() {
   RADIOLIB_OR_HALT(radio.setOutputPower(TRANSMIT_POWER));
   // Start receiving
   RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
+  heltec_led(50); // 50% brightness is plenty for this LED
 }
 
 void loop() {
   heltec_loop();
 
-  bool tx_legal = millis() > last_tx + minimum_pause;
-  // Transmit a packet every PAUSE seconds or when the button is pressed
-  if ((PAUSE && tx_legal && millis() - last_tx > (PAUSE * 1000)) ||
-      button.isSingleClick()) {
-    // In case of button click, tell user to wait
-    if (!tx_legal) {
-      both.printf("Legal limit, wait %i sec.\n",
-                  (int)((minimum_pause - (millis() - last_tx)) / 1000) + 1);
-      return;
-    }
-    both.printf("TX [%s] ", String(counter).c_str());
-    radio.clearDio1Action();
-    heltec_led(50); // 50% brightness is plenty for this LED
-    tx_time = millis();
-    RADIOLIB(radio.transmit(String(counter++).c_str()));
-    tx_time = millis() - tx_time;
+  if (button.isSingleClick()) {
     heltec_led(0);
+    counter++;
+    // both.printf("TX [%s] ", String(counter).c_str());
+    txdata = String(counter).c_str();
+    radio.clearDio1Action();
+    tx_time = millis();
+    // RADIOLIB(radio.transmit(String(counter++).c_str()));
+    // RADIOLIB(radio.transmit(txdata));
+    _radiolib_status = radio.transmit(txdata);
+    tx_time = millis() - tx_time;
     if (_radiolib_status == RADIOLIB_ERR_NONE) {
-      both.printf("OK (%i ms)\n", (int)tx_time);
+      both.printf("TX='%s' (%i ms)\n", txdata, (int)tx_time);
     } else {
       both.printf("fail (%i)\n", _radiolib_status);
     }
@@ -92,18 +83,20 @@ void loop() {
     minimum_pause = tx_time * 100;
     last_tx = millis();
     radio.setDio1Action(rx);
-    RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
+    radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF);
+    // RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
   }
 
   // If a packet was received, display it and the RSSI and SNR
   if (rxFlag) {
+    heltec_led(100); // 50% brightness is plenty for this LED
     rxFlag = false;
     radio.readData(rxdata);
     if (_radiolib_status == RADIOLIB_ERR_NONE) {
-      both.printf("RX [%s]\n", rxdata.c_str());
-      both.printf("  RSSI: %.2f dBm\n", radio.getRSSI());
-      both.printf("  SNR: %.2f dB\n", radio.getSNR());
+      both.printf("RX='%s' RSSI:%.2fdBm SNR:%.2fdB\n", rxdata.c_str(),
+                  radio.getRSSI(), radio.getSNR());
     }
-    RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
+    radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF);
+    // RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
   }
 }
