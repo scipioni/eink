@@ -1,0 +1,6 @@
+[env]
+build_flags = 
+    -D WIFI_SSID=xxx
+    -D WIFI_PASS=xxx
+    
+#-D WIFI_SSID=${sysenv.WIFI_SSID}
