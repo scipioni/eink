@@ -1,12 +1,7 @@
-// #include <Arduino.h>
-//  Pause between sends in seconds, so this is every 15 minutes. (Delay will be
-//  longer if regulatory or TTN Fair Use Policy requires it.)
-
 #include <ArduinoJson.h>
+#include <ESPAsyncWebServer.h>
 #include <ESPmDNS.h>
-#include <WebServer.h>
 #include <WiFi.h>
-
 #define HELTEC_WIRELESS_STICK_LITE
 // Turns the 'PRG' button into the power button, long press is off
 #define HELTEC_POWER_BUTTON // must be before "#include <heltec_unofficial.h>"
@@ -26,23 +21,22 @@
 // meaning (in nutshell) longer range and more robust against interference.
 #define SPREADING_FACTOR 9
 
-// Transmit power in dBm. 0 dBm = 1 mW, enough for tabletop-testing. This
-// value can be set anywhere between -9 dBm (0.125 mW) to 22 dBm (158 mW).
-// Note that the maximum ERP (which is what your antenna maximally radiates)
-// on the EU ISM band is 25 mW, and that transmissting without an antenna
-// can damage your hardware. #define TRANSMIT_POWER 2
+// Transmit power in dBm. 0 dBm = 1 mW, enough for tabletop-testing.
+// This value can be set anywhere between -9 dBm (0.125 mW) to 22 dBm
+// (158 mW). Note that the maximum ERP (which is what your antenna
+// maximally radiates) on the EU ISM band is 25 mW, and that
+// transmissting without an antenna can damage your hardware. #define
+// TRANSMIT_POWER 2
 
-String rxdata;
-String txdata;
+String rxdata = "";
+String txdata = "";
 volatile bool rxFlag = false;
 long counter = 0;
 uint64_t last_tx = 0;
 uint64_t tx_time;
 uint64_t minimum_pause;
 
-WebServer server(80);
-StaticJsonDocument<250> jsonDocument;
-char buffer[250];
+AsyncWebServer server(80);
 
 void wifi_init() {
   WiFi.mode(WIFI_STA);
@@ -55,45 +49,16 @@ void wifi_init() {
   Serial.println(WiFi.localIP());
 }
 
-void create_json(char *tag, float value, char *unit) {
-  jsonDocument.clear();
-  jsonDocument["type"] = tag;
-  jsonDocument["value"] = value;
-  jsonDocument["unit"] = unit;
-  serializeJson(jsonDocument, buffer);
+void get_status(AsyncWebServerRequest *request) {
+  JsonDocument data;
+  data["random"] = String(random(1000));
+  String response;
+  serializeJson(data, response);
+  request->send(200, "application/json", response);
 }
 
-void add_json_object(char *tag, float value, char *unit) {
-  JsonObject obj = jsonDocument.createNestedObject();
-  obj["type"] = tag;
-  obj["value"] = value;
-  obj["unit"] = unit;
-}
-void get_status() {
-  jsonDocument.clear();
-  JsonObject obj = jsonDocument.createNestedObject();
-  obj["status"] = "ok";
-  // add_json_object("temperature", temperature, "°C");
-  serializeJson(jsonDocument, buffer);
-  server.send(200, "application/json", buffer);
-}
-
-void handlePost() {
-  if (server.hasArg("plain") == false) {
-  }
-  String body = server.arg("plain");
-  deserializeJson(jsonDocument, body);
-
-  // action
-  // int red_value = jsonDocument["red"];
-
-  server.send(200, "application/json", "{}");
-}
-void setup_routing() {
-  server.on("/", get_status);
-  server.on("/msg", HTTP_POST, handlePost);
-
-  server.begin();
+void get_root(AsyncWebServerRequest *request) {
+  request->send(200, "text/plain", "hello world");
 }
 
 void rx() { rxFlag = true; }
@@ -117,6 +82,10 @@ void setup() {
   RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
   heltec_led(50); // 50% brightness is plenty for this LED
   wifi_init();
+
+  server.on("/", HTTP_GET, get_root);
+  server.on("/status", HTTP_GET, get_status);
+  server.begin();
 }
 
 void loop() {
@@ -127,10 +96,10 @@ void loop() {
     counter++;
     // both.printf("TX [%s] ", String(counter).c_str());
     txdata = String(counter).c_str();
+    // txtdata = String(readingID) + "/" + String(temperature) + "&" +
+    //                  String(humidity) + "#" + String(pressure);
     radio.clearDio1Action();
     tx_time = millis();
-    // RADIOLIB(radio.transmit(String(counter++).c_str()));
-    // RADIOLIB(radio.transmit(txdata));
     _radiolib_status = radio.transmit(txdata);
     tx_time = millis() - tx_time;
     if (_radiolib_status == RADIOLIB_ERR_NONE) {
@@ -138,12 +107,10 @@ void loop() {
     } else {
       both.printf("fail (%i)\n", _radiolib_status);
     }
-    // Maximum 1% duty cycle
     minimum_pause = tx_time * 100;
     last_tx = millis();
     radio.setDio1Action(rx);
     radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF);
-    // RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
   }
 
   // If a packet was received, display it and the RSSI and SNR
@@ -156,6 +123,5 @@ void loop() {
                   radio.getRSSI(), radio.getSNR());
     }
     radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF);
-    // RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
   }
 }
