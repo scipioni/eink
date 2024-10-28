@@ -1,0 +1,26 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+dotenv: ['.env']
+
+tasks:
+  default:
+    cmds:
+      - go-task -l
+    silent: true
+
+  info:
+    cmds:
+      - meshtastic --port ${PORT} --info
+  
+  log:
+    cmds:
+      - meshtastic --port ${PORT} --noproto
+
+  wifi:
+    cmds:
+      - meshtastic --port ${PORT} --set network.wifi_enabled true --set network.wifi_ssid ${WIFI_SSID} --set network.wifi_psk ${WIFI_PASS}
