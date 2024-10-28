@@ -29,10 +29,18 @@ tasks:
     cmds:
       - esptool.py --chip esp32s3 --port ${PORT} --baud 460800 write_flash -z 0 ${FIRMWARE}
 
-  cli:
+  picocom:
     cmds:
       - picocom ${PORT} -b115200
+
+  cli:
+    cmds:
+      - rshell -p ${PORT} 
 
   reboot:
     cmds:
       - rshell -p ${PORT} "repl ~ import machine ~ machine.soft_reset() ~"
+
+  upload:
+    cmds:
+      - rshell -p ${PORT} "rsync {{.CLI_ARGS}}/ /lora1/"
