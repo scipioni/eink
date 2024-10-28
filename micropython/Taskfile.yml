@@ -1,0 +1,38 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+dotenv: ['.env']
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  detect:
+    cmds:
+      - esptool.py -p ${PORT} chip_id
+
+  erase:
+    cmds:
+      - esptool.py -p ${PORT} erase_flash
+
+  flash:
+    cmds:
+      - esptool.py --chip esp32 --port ${PORT} --baud 460800 write_flash -z 0x1000 ${FIRMWARE}
+
+  flash:s3:
+    cmds:
+      - esptool.py --chip esp32s3 --port ${PORT} --baud 460800 write_flash -z 0 ${FIRMWARE}
+
+  cli:
+    cmds:
+      - picocom ${PORT} -b115200
+
+  reboot:
+    cmds:
+      - rshell -p ${PORT} "repl ~ import machine ~ machine.soft_reset() ~"
