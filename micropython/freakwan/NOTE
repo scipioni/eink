@@ -1,0 +1,11 @@
+>>> from machine import SoftI2C, Pin
+>>> p4=Pin(4, Pin.OPEN_DRAIN)
+>>> p15=Pin(15, Pin.OPEN_DRAIN)
+>>> # set the OLED reset pin to a high level, otherwise the display will not respond
+>>> p16=Pin(16, Pin.OUT, value=1)
+>>> i2c=SoftI2C(sda=p4, scl=p15)
+>>> # now reconfigure the pin with internal Pull-up
+>>> p4.init(Pin.OPEN_DRAIN, pull=Pin.PULL_UP)
+>>> p15.init(Pin.OPEN_DRAIN, pull=Pin.PULL_UP)
+>>> print(i2c.scan())
+
