@@ -27,8 +27,7 @@ class UserConfig:
 
    # WiFi network, in order to use the IRC interface.
     config['wifi'] = {
-        'mynetwork1': 'mypassword',
-        'ssid2': 'password2'
+        'ranch': 'xyz',
     }
 
     # WiFi network to join at startup.
@@ -55,7 +54,7 @@ class UserConfig:
     # MicroPython versions and ESP32 chips models have
     # issues. If you see the device crashing on startup try
     # to disable Bluetooth.
-    config['ble_enabled'] = True
+    config['ble_enabled'] = False
 
     # Goes to deep sleep when this percentage is reached, in order to
     # avoid damaging the battery.

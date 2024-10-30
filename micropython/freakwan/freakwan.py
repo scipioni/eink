@@ -17,9 +17,14 @@ SEND_MAX_DELAY = const(2000) # Random delay in milliseconds of asynchronous
 TX_AGAIN_MIN_DELAY = const(3000)
 TX_AGAIN_MAX_DELAY = const(8000)
 
-import machine, time, urandom, gc, sys, io
+import machine
+import time
+import urandom
+import gc
+import sys
+import io
 import select
-from machine import Pin, SoftI2C, ADC, SPI
+from machine import Pin, SoftI2C, SPI
 import uasyncio as asyncio
 from wan_config import *
 from device_config import *
@@ -125,13 +130,23 @@ class FreakWAN:
 
         if 'ssd1306' in self.config:
             import ssd1306
-            self.xres = self.config['ssd1306']['xres']
-            self.yres = self.config['ssd1306']['yres']
+            _cfg = self.config['ssd1306']
+            self.xres = _cfg['xres']
+            self.yres = _cfg['yres']
+            
+            if _cfg.get('is_heltec'):
+                psda=Pin(_cfg['sda'], Pin.OUT, Pin.PULL_UP)
+                pscl=Pin(_cfg['scl'], Pin.OUT, Pin.PULL_UP)
+                prst = Pin(16, Pin.OUT)
+                prst.value(1)
+            else:
+                psda=Pin(_cfg['sda'])
+                pscl=Pin(_cfg['scl'])
 
-            i2c = SoftI2C(sda=Pin(self.config['ssd1306']['sda']),
-                          scl=Pin(self.config['ssd1306']['scl']))
+            i2c = SoftI2C(sda=psda, scl=pscl)
             self.display = ssd1306.SSD1306_I2C(self.xres, self.yres, i2c)
-            self.display.poweron()
+            if not _cfg.get('is_heltec'):
+                self.display.poweron()
             self.display.show()
         elif 'st7789' in self.config:
             import st7789
@@ -616,7 +631,7 @@ class FreakWAN:
                 # Limit the number of neighbors to protect against OOM
                 # due to bugs or too many nodes near us.
                 max_neighbors = 32
-                if not m.sender in self.neighbors:
+                if m.sender not in self.neighbors:
                     msg = "[net] New node sensed: "+m.sender_to_str()
                     self.serial_log(msg)
                     if self.bleuart: self.bleuart.print(msg)
