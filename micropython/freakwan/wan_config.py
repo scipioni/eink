@@ -27,7 +27,7 @@ class UserConfig:
 
    # WiFi network, in order to use the IRC interface.
     config['wifi'] = {
-        'ranch': 'xyz',
+        'blabla': 'xyz',
     }
 
     # WiFi network to join at startup.

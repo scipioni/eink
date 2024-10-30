@@ -34,5 +34,11 @@ class DeviceConfig:
         'reset': 12,
         'dio': 14,
     }
-
+    #
+    # config['ssd1306']= {
+    #     'sda': 48,
+    #     'scl': 47,
+    #     'xres': 128,
+    #     'yres': 32,
+    # }
 
