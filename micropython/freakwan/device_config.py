@@ -1,4 +1,3 @@
-from machine import Pin, ADC
 
 class DeviceConfig:
     config = {}
@@ -6,19 +5,6 @@ class DeviceConfig:
     def get_battery_microvolts(): return 0
     def power_up(freakwan): pass # By default, nothing to do at power-up.
 
-    if False:
-        def power_up():
-            # Init battery voltage pin
-            DeviceConfig.battery_adc = ADC(Pin(1))
-
-            # Voltage is divided by 2 befor reaching PID 32. Since normally
-            # a 3.7V battery is used, to sample it we need the full 3.3
-            # volts range.
-            DeviceConfig.battery_adc.atten(ADC.ATTN_11DB)
-
-
-        def get_battery_microvolts():
-            return DeviceConfig.battery_adc.read_uv()*2
 
     config['tx_led'] = {
         'pin': 35,
@@ -34,11 +20,12 @@ class DeviceConfig:
         'reset': 12,
         'dio': 14,
     }
-    #
-    # config['ssd1306']= {
-    #     'sda': 48,
-    #     'scl': 47,
-    #     'xres': 128,
-    #     'yres': 32,
-    # }
+    
+    if False:
+        config['ssd1306']= {
+            'sda': 48,
+            'scl': 47,
+            'xres': 128,
+            'yres': 64,
+        }
 

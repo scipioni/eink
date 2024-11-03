@@ -54,7 +54,7 @@ class UserConfig:
     # MicroPython versions and ESP32 chips models have
     # issues. If you see the device crashing on startup try
     # to disable Bluetooth.
-    config['ble_enabled'] = False
+    config['ble_enabled'] = True
 
     # Goes to deep sleep when this percentage is reached, in order to
     # avoid damaging the battery.
