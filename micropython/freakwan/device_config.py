@@ -7,7 +7,7 @@ class DeviceConfig:
 
 
     config['tx_led'] = {
-        'pin': 35,
+        'pin': 18,
         'inverted': False,      # Set to True if pin on = led off
     }
 
@@ -20,12 +20,16 @@ class DeviceConfig:
         'reset': 12,
         'dio': 14,
     }
-    
-    if False:
-        config['ssd1306']= {
-            'sda': 48,
-            'scl': 47,
-            'xres': 128,
-            'yres': 64,
-        }
 
+    if False:
+        def power_up():
+            # Init battery voltage pin
+            DeviceConfig.battery_adc = ADC(Pin(20))
+
+            # Voltage is divided by 2 befor reaching PID 32. Since normally
+            # a 3.7V battery is used, to sample it we need the full 3.3
+            # volts range.
+            DeviceConfig.battery_adc.atten(ADC.ATTN_11DB)
+
+        def get_battery_microvolts():
+            return DeviceConfig.battery_adc.read_uv()*2

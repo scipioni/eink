@@ -1,0 +1,31 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+dotenv: ['.env']
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  picocom:
+    cmds:
+      - picocom ${PORT} -b115200
+
+  cli:
+    cmds:
+      - rshell -p ${PORT} 
+
+  reboot:
+    cmds:
+      - rshell -p ${PORT} "repl ~ import machine ~ machine.soft_reset() ~"
+
+  sync:
+    cmds:
+      - |
+        mpremote connect ${PORT} cp *.py :
