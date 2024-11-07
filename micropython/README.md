@@ -6,6 +6,10 @@
 
 - https://heltec.org/project/wireless-paper/
 
+## libraries
+
+- https://github.com/todd-herbert/heltec-eink-modules
+
 
 ## other
 
