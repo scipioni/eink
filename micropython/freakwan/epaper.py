@@ -7,7 +7,8 @@
     https://github.com/HelTecAutomation/Heltec_ESP32/blob/095755261d93051ada4456119a7b413f1aef2bf0/src/HT_QYEG0213RWS800_BWR.h
 """
 
-from lib.epaper2in13 import EPD
+#from lib.epaper2in13 import EPD
+from epaper7in5b import EPD
 
 from machine import Pin, SPI
 
