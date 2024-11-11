@@ -8,7 +8,10 @@
 
 ## libraries
 
+### diplay with platformio
+
 - https://github.com/todd-herbert/heltec-eink-modules
+- https://github.com/ZinggJM/GxEPD2
 
 
 ## other
