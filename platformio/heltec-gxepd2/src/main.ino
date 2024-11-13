@@ -30,7 +30,7 @@
 #include <Fonts/FreeMonoBold9pt7b.h>
 
 // select the display class and display driver class in the following file (new style):
-#include "GxEPD2_display_selection_new_style.h"
+//#include "GxEPD2_display_selection_new_style.h"
 
 // or select the display constructor line in one of the following files (old style):
 //#include "GxEPD2_display_selection.h"
@@ -40,10 +40,22 @@
 // e.g. for Wemos D1 mini:
 //GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> display(GxEPD2_154_D67(/*CS=D8*/ SS, /*DC=D3*/ 0, /*RST=D4*/ 2, /*BUSY=D2*/ 4)); // GDEH0154D67
 
+const int SCRN_BUSY = 7;     // ePaper Busy indicator (SPI MISO aquivalent)
+const int SCRN_RSET = 6;     // ePaper Reset switch
+const int SCRN_DC   = 5;     // ePaper Data/Command selection
+const int SCRN_CS   = 4;     // SPI Channel Chip Selection for ePaper
+const int SCRN_SCK  = 3;     // SPI Channel Click (eink-clk ?)
+const int SCRN_SDI  = 2;     // SPI Channel MOSI Pin  
+const int SCRN_SPI_CHAN = 2;  // HSPI
+
+
+GxEPD2_BW<GxEPD2_750_T7, MAX_HEIGHT(GxEPD2_750_T7)> display(GxEPD2_750_T7(/*CS=4*/ SCRN_CS, /*DC=*/ SCRN_DC, /*RST=*/ SCRN_RSET, /*BUSY=*/ SCRN_BUSY)); // GDEW075T7 800x480, EK79655 (GD7965)
 // for handling alternative SPI pins (ESP32, RP2040) see example GxEPD2_Example.ino
 
 void setup()
 {
+  // SPI.begin(sck, miso, mosi, ss); // preset for remapped pins ss=slave select
+  SPI.begin(SCRN_SCK, -1, SCRN_SDI, SCRN_CS); // heltec wireless paper
   //display.init(115200); // default 10ms reset pulse, e.g. for bare panels with DESPI-C02
   display.init(115200, true, 2, false); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
   helloWorld();
