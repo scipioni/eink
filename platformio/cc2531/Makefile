@@ -2,7 +2,7 @@
 #SHELL := /bin/bash
 #PATH := /usr/local/bin:$(PATH)
 
-all:
+all: ccloader
 	pio run
 
 upload:
@@ -13,3 +13,6 @@ clean:
 
 update:
 	pio pkg update
+
+ccloader: ccloader.c
+	$(CC) -o ccloader ccloader.c
