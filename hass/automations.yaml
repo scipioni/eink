@@ -1,1 +1,15 @@
-[]
+- id: '1730191082633'
+  alias: allerta temperatura
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.mpu6050_mpu6050_temperature
+    above: 24
+  conditions: []
+  actions:
+  - action: notify.send_message
+    metadata: {}
+    data:
+      message: attenzione temperatura alta
+  mode: single

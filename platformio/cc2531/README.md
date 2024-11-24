@@ -1,0 +1,1 @@
+- https://www.zigbee2mqtt.io/guide/adapters/flashing/alternative_flashing_methods.html#arduino_ccloader
