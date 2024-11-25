@@ -19,3 +19,6 @@ update:
 
 ccloader: ccloader.c
 	$(CC) -o ccloader ccloader.c
+
+flash-cc:
+	sudo ./ccloader /dev/ttyUSB0 CC2531ZNP-Prod.bin 1
