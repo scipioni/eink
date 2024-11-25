@@ -5,8 +5,11 @@
 all: ccloader
 	pio run
 
-upload:
+flash-esp:
 	pio run --target upload
+
+flash-cc2531: ccloader
+	./ccloader /dev/ttyUSB0 CC2531ZNP-Prod.bin 1
 
 clean:
 	pio run --target clean
